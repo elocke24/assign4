@@ -1,0 +1,13 @@
+CREATE DATABASE IF NOT EXISTS tictactoe;
+
+USE tictactoe;
+
+CREATE TABLE IF NOT EXISTS users (
+  screenname VARCHAR(50) PRIMARY KEY,
+  login_time DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS players (
+  x_player VARCHAR(50),
+  o_player VARCHAR(50)
+);
