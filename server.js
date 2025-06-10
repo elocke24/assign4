@@ -89,11 +89,15 @@ io.on("connection", socket => {
       if (rows.length === 0) return;
       const game = rows[0];
       const opponent = game.x_player === name ? game.o_player : game.x_player;
+      const nextTurn = game.x_player === name ? "O" : "X";
+
       if (sockets[opponent]) {
-        io.to(sockets[opponent]).emit("MOVE", { cell });
+        io.to(sockets[opponent]).emit("MOVE", { cell, turn: nextTurn });
       }
+      io.to(sockets[name]).emit("MOVE", { cell, turn: nextTurn });
     });
   });
+
 
   socket.on("END-GAME", ({ result, winner }) => {
     db.query("DELETE FROM players WHERE x_player=? OR o_player=?", [winner, winner], () => {

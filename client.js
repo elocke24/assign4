@@ -82,10 +82,10 @@ function move(cell) {
   checkGameEnd();
 }
 
-socket.on("MOVE", ({ cell }) => {
+socket.on("MOVE", ({ cell, turn: newTurn }) => {
   const btn = document.getElementById("cell" + cell);
   btn.innerText = symbol === "X" ? "O" : "X";
-  turn = symbol;
+  turn = newTurn;
   updateStatus();
   checkGameEnd();
 });
