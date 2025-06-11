@@ -1,6 +1,5 @@
 const http = require("http");
 const fs = require("fs");
-const path = require("path");
 const socketIo = require("socket.io");
 const db = require("./config");
 
@@ -27,7 +26,6 @@ let sockets = {}; // screenname -> socket.id
 function broadcastStatus() {
   db.query("SELECT * FROM users", (err, users) => {
     db.query("SELECT * FROM players", (err2, rows) => {
-      const playing = rows.map(r => [r.x_player, r.o_player]);
       const status = users.map(u => {
         const name = u.screenname;
         const found = rows.find(r => r.x_player === name || r.o_player === name);
@@ -89,15 +87,15 @@ io.on("connection", socket => {
       if (rows.length === 0) return;
       const game = rows[0];
       const opponent = game.x_player === name ? game.o_player : game.x_player;
-      const nextTurn = game.x_player === name ? "O" : "X";
+      const symbol = game.x_player === name ? "X" : "O";
+      const nextTurn = symbol === "X" ? "O" : "X";
 
       if (sockets[opponent]) {
-        io.to(sockets[opponent]).emit("MOVE", { cell, turn: nextTurn });
+        io.to(sockets[opponent]).emit("MOVE", { cell, turn: nextTurn, symbol });
       }
-      io.to(sockets[name]).emit("MOVE", { cell, turn: nextTurn });
+      io.to(sockets[name]).emit("MOVE", { cell, turn: nextTurn, symbol });
     });
   });
-
 
   socket.on("END-GAME", ({ result, winner }) => {
     db.query("DELETE FROM players WHERE x_player=? OR o_player=?", [winner, winner], () => {
