@@ -1,5 +1,6 @@
 const socket = io();
 let name = "", symbol = "", opponent = "", turn = "X";
+let gameOver = false;
 
 function submitLogin() {
   name = document.getElementById("nameInput").value.trim();
@@ -49,6 +50,7 @@ function join(opponentName) {
 }
 
 socket.on("PLAY", ({ x, o }) => {
+  gameOver = false;
   symbol = x === name ? "X" : "O";
   opponent = x === name ? o : x;
   turn = "X";
@@ -91,15 +93,21 @@ socket.on("MOVE", ({ cell, turn: newTurn, symbol: moveSymbol }) => {
 });
 
 function checkGameEnd() {
+  if (gameOver) return; // 🛑 Prevent multiple triggers
+
   const win = [[1,2,3],[4,5,6],[7,8,9],[1,4,7],[2,5,8],[3,6,9],[1,5,9],[3,5,7]];
   const cells = Array.from({ length: 10 }, (_, i) => document.getElementById("cell" + i)?.innerText);
+
   for (const [a, b, c] of win) {
     if (cells[a] && cells[a] === cells[b] && cells[b] === cells[c]) {
+      gameOver = true;
       socket.emit("END-GAME", { result: "WIN", winner: name });
       return;
     }
   }
+
   if (cells.slice(1).every(Boolean)) {
+    gameOver = true;
     socket.emit("END-GAME", { result: "DRAW", winner: name });
   }
 }

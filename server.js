@@ -42,6 +42,12 @@ io.on("connection", socket => {
     if (!name) return;
 
     db.query("SELECT screenname FROM users WHERE screenname = ?", [name], (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        socket.emit("server-error", "Database query failed.");
+        return;
+      }
+
       if (results.length > 0) {
         socket.emit("screenname-unavailable");
       } else {
