@@ -5,14 +5,21 @@
   <style>
     #board button { width: 60px; height: 60px; font-size: 24px; }
     #userList { height: 150px; overflow-y: auto; }
+    .wrapper {max-width: 800px; margin: 0 auto; padding: 20px; width: 90%; }
   </style>
 </head>
 <body>
-  <h1>Tic Tac Toe</h1>
-  <p>By: Eric Locke and Zinet Hyssen</p>
-  <div id="loginArea">
-    Username: <input id="nameInput" />
-    <button onclick="submitLogin()">SUBMIT</button>
+  <div class="wrapper">
+  <h1 style="text-align: center;">Tic Tac Toe</h1>
+  <p style="text-align: center;">By: Eric Locke and Zinet Hyssen</p>
+ 
+  <p style="text-align: right;">How to Play</p>
+   <br>
+  <div id="loginArea" style="text-align: center;">
+    Username: <input id="nameInput" /> 
+  </div>
+  <div style="text-align: center;">
+    <button style="margin-top: 20px; background-color: steelblue; padding: 10px 20px; border: none; border-radius: 5px;"onclick="submitLogin()">SUBMIT</button>
     <p id="loginMsg"></p>
   </div>
   <div id="lobbyArea" style="display:none;">
@@ -26,6 +33,7 @@
   <div id="gameArea" style="display:none;">
     <div id="status"></div>
     <div id="board"></div>
+  </div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
