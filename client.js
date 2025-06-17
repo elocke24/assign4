@@ -119,3 +119,11 @@ socket.on("END-GAME", ({ result, winner }) => {
   }
   document.getElementById("newGameBtn").style.display = "block";
 });
+
+function showHowToPlay() {
+    document.getElementById("howToPlayOverlay").style.display = "block";
+  }
+
+  function closeHowToPlay() {
+    document.getElementById("howToPlayOverlay").style.display = "none";
+  }
