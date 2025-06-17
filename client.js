@@ -93,30 +93,67 @@ socket.on("MOVE", ({ cell, turn: newTurn, symbol: moveSymbol }) => {
 });
 
 function checkGameEnd() {
-  if (gameOver) return; // 🛑 Prevent multiple triggers
+  if (gameOver) return; // Prevent re-checking if game is already over
 
-  const win = [[1,2,3],[4,5,6],[7,8,9],[1,4,7],[2,5,8],[3,6,9],[1,5,9],[3,5,7]];
-  const cells = Array.from({ length: 10 }, (_, i) => document.getElementById("cell" + i)?.innerText);
+  const winCombos = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+    [1, 4, 7],
+    [2, 5, 8],
+    [3, 6, 9],
+    [1, 5, 9],
+    [3, 5, 7]
+  ];
 
-  for (const [a, b, c] of win) {
+  const cells = Array.from({ length: 10 }, (_, i) =>
+    document.getElementById("cell" + i)?.innerText
+  );
+
+  for (const [a, b, c] of winCombos) {
     if (cells[a] && cells[a] === cells[b] && cells[b] === cells[c]) {
       gameOver = true;
-      socket.emit("END-GAME", { result: "WIN", winner: name });
+
+      // Only the player who just made the move should emit END-GAME
+      if (cells[a] === symbol) {
+        socket.emit("END-GAME", { result: "WIN", winner: name });
+      }
+
       return;
     }
   }
 
+  // If all cells are filled and no winner, it's a draw
   if (cells.slice(1).every(Boolean)) {
     gameOver = true;
-    socket.emit("END-GAME", { result: "DRAW", winner: name });
+    
+    // Emit draw only if last move was yours
+    const movesByMe = cells.filter(cell => cell === symbol).length;
+    const movesByThem = cells.filter(cell => cell && cell !== symbol).length;
+
+    if (movesByMe === movesByThem || movesByMe === movesByThem + 1) {
+      socket.emit("END-GAME", { result: "DRAW", winner: name });
+    }
   }
 }
 
+
 socket.on("END-GAME", ({ result, winner }) => {
-  document.getElementById("status").innerText += ` | Game Over: ${result} ${winner === name ? "You win!" : "You lose!"}`;
+  const isWinner = winner === name;
+  let message = " | Game Over: ";
+  if (result === "DRAW") {
+    message += "Draw!";
+  } else {
+    message += isWinner ? "You win!" : "You lose!";
+  }
+  document.getElementById("status").innerText += message;
+
+  // Disable the board
   for (let i = 1; i <= 9; i++) {
     document.getElementById("cell" + i).disabled = true;
   }
+
+  // Show "New Game" button
   document.getElementById("newGameBtn").style.display = "block";
 });
 
