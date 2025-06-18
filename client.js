@@ -1,54 +1,68 @@
+// Connect to the server using socket.io
 const socket = io();
+
+// Variables to keep track of the player and game state
 let name = "", symbol = "", opponent = "", turn = "X";
 let gameOver = false;
 
+// When the user submits their name, send it to the server
 function submitLogin() {
   name = document.getElementById("nameInput").value.trim();
   if (name) socket.emit("TO-SERVER LOGIN", name);
 }
 
+// If the name is already taken, show a message
 socket.on("screenname-unavailable", () => {
   document.getElementById("loginMsg").innerText = "Name taken, try another.";
 });
 
+// If login is successful, hide the login and show the lobby
 socket.on("LOGIN-OK", () => {
   document.getElementById("loginArea").style.display = "none";
   document.getElementById("lobbyArea").style.display = "block";
 });
 
+// When "New Game" is clicked, show X/O selection
 function promptNewGame() {
   document.getElementById("newGameBtn").style.display = "none";
   document.getElementById("newGamePrompt").style.display = "block";
 }
 
+// Send the chosen side (X or O) to the server
 function chooseSide(side) {
   socket.emit("NEW-GAME", { name, choice: side });
   document.getElementById("newGamePrompt").style.display = "none";
 }
 
+// Update the lobby list with current users and game status
 socket.on("UPDATED-USER-LIST-AND-STATUS", (list) => {
   const div = document.getElementById("userList");
   div.innerHTML = "";
   list.forEach(item => {
     if (item.x && item.o) {
+      // Show active game
       div.innerHTML += `<div>X: ${item.x} | O: ${item.o}</div>`;
     } else if (item.x || item.o) {
+      // Show players waiting for a match
       const wait = item.x || item.o;
       if (wait !== name) {
         div.innerHTML += `<div>${item.x || "-"} | ${item.o || "-"} 
           <button onclick="join('${wait}')">JOIN</button></div>`;
       }
     } else {
+      // Show idle players
       div.innerHTML += `<div>${item.name} (idle)</div>`;
     }
   });
 });
 
+// Ask to join someone's game
 function join(opponentName) {
   if (opponentName === name) return;
   socket.emit("JOIN", { clientName: name, opponent: opponentName });
 }
 
+// When a game starts, set up the board
 socket.on("PLAY", ({ x, o }) => {
   gameOver = false;
   symbol = x === name ? "X" : "O";
@@ -60,6 +74,7 @@ socket.on("PLAY", ({ x, o }) => {
   updateStatus();
 });
 
+// Draw the game board
 function renderBoard() {
   const board = document.getElementById("board");
   board.innerHTML = "";
@@ -69,14 +84,16 @@ function renderBoard() {
   }
 }
 
+// Show current game status (your symbol, turn, opponent)
 function updateStatus() {
   document.getElementById("status").innerText = `You: ${symbol} | Opponent: ${opponent} | Turn: ${turn}`;
 }
 
+// When you click a cell
 function move(cell) {
-  if (turn !== symbol) return;
+  if (turn !== symbol) return; // Not your turn
   const btn = document.getElementById("cell" + cell);
-  if (btn.innerText !== "") return;
+  if (btn.innerText !== "") return; // Cell already used
   btn.innerText = symbol;
   turn = symbol === "X" ? "O" : "X";
   socket.emit("MOVE", { name, cell });
@@ -84,6 +101,7 @@ function move(cell) {
   checkGameEnd();
 }
 
+// When the opponent moves
 socket.on("MOVE", ({ cell, turn: newTurn, symbol: moveSymbol }) => {
   const btn = document.getElementById("cell" + cell);
   btn.innerText = moveSymbol;
@@ -92,8 +110,9 @@ socket.on("MOVE", ({ cell, turn: newTurn, symbol: moveSymbol }) => {
   checkGameEnd();
 });
 
+// Check if the game ended (win or draw)
 function checkGameEnd() {
-  if (gameOver) return; // Prevent re-checking if game is already over
+  if (gameOver) return;
 
   const winCombos = [
     [1, 2, 3],
@@ -114,7 +133,7 @@ function checkGameEnd() {
     if (cells[a] && cells[a] === cells[b] && cells[b] === cells[c]) {
       gameOver = true;
 
-      // Only the player who just made the move should emit END-GAME
+      // Only send win if you're the one who won
       if (cells[a] === symbol) {
         socket.emit("END-GAME", { result: "WIN", winner: name });
       }
@@ -123,11 +142,10 @@ function checkGameEnd() {
     }
   }
 
-  // If all cells are filled and no winner, it's a draw
+  // If board is full and no winner, it’s a draw
   if (cells.slice(1).every(Boolean)) {
     gameOver = true;
-    
-    // Emit draw only if last move was yours
+
     const movesByMe = cells.filter(cell => cell === symbol).length;
     const movesByThem = cells.filter(cell => cell && cell !== symbol).length;
 
@@ -137,7 +155,7 @@ function checkGameEnd() {
   }
 }
 
-
+// Show the result and disable board
 socket.on("END-GAME", ({ result, winner }) => {
   const isWinner = winner === name;
   let message = " | Game Over: ";
@@ -148,19 +166,21 @@ socket.on("END-GAME", ({ result, winner }) => {
   }
   document.getElementById("status").innerText += message;
 
-  // Disable the board
+  // Disable all buttons
   for (let i = 1; i <= 9; i++) {
     document.getElementById("cell" + i).disabled = true;
   }
 
-  // Show "New Game" button
+  // Show new game button
   document.getElementById("newGameBtn").style.display = "block";
 });
 
+// Show how-to-play popup
 function showHowToPlay() {
-    document.getElementById("howToPlayOverlay").style.display = "block";
-  }
+  document.getElementById("howToPlayOverlay").style.display = "block";
+}
 
-  function closeHowToPlay() {
-    document.getElementById("howToPlayOverlay").style.display = "none";
-  }
+// Hide how-to-play popup
+function closeHowToPlay() {
+  document.getElementById("howToPlayOverlay").style.display = "none";
+}

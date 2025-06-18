@@ -3,6 +3,7 @@
 <head>
   <title>Multiplayer Tic Tac Toe</title>
   <style>
+    /* Make buttons for the game board square and centered */
     #board button {
       width: 60px;
       height: 60px;
@@ -13,44 +14,67 @@
       vertical-align: top;
       box-sizing: border-box;
     }
+
+    /* Make user list scrollable if too long */
     #userList { height: 150px; overflow-y: auto; }
-    .wrapper {max-width: 800px; margin: 0 auto; padding: 20px; width: 90%; }
+
+    /* Center the whole page and keep it neat on all screen sizes */
+    .wrapper { max-width: 800px; margin: 0 auto; padding: 20px; width: 90%; }
   </style>
 </head>
 <body>
   <div class="wrapper">
-  <h1 style="text-align: center;">Tic Tac Toe</h1>
-  <p style="text-align: center;">By: Eric Locke and Zinet Hyssen</p>
- 
-  <div style="display: flex; justify-content: flex-end; padding: 10px 0;">
-    <button onclick="showHowToPlay()" style="padding: 6px 12px;
-    background-color: DarkKhaki; border: none; border-radius: 5px;">How to Play</button>
-  </div>
-   <br>
-  <div id="loginArea" style="text-align: center;">
-    Username: <input id="nameInput" /> 
-  </div>
-  <div style="text-align: center;">
-    <button style="margin-top: 20px; background-color: steelblue; padding: 10px 20px; border: none; border-radius: 5px;"onclick="submitLogin()">SUBMIT</button>
-    <p id="loginMsg"></p>
-  </div>
-  <div id="lobbyArea" style="display:none;">
-    <div id="userList"></div>
-    <button id="newGameBtn" onclick="promptNewGame()">NEW-GAME</button>
-  </div>
-  <div id="newGamePrompt" style="display:none;">
-    Choose: <button onclick="chooseSide('X')">X</button>
-    <button onclick="chooseSide('O')">O</button>
-  </div>
+    <!-- Page Title and Author -->
+    <h1 style="text-align: center;">Tic Tac Toe</h1>
+    <p style="text-align: center;">By: Eric Locke and Zinet Hyssen</p>
+
+    <!-- How to Play button goes in the top right -->
+    <div style="display: flex; justify-content: flex-end; padding: 10px 0;">
+      <button onclick="showHowToPlay()" style="padding: 6px 12px; background-color: DarkKhaki; border: none; border-radius: 5px;">
+        How to Play
+      </button>
+    </div>
+
+    <!-- Username input area -->
+    <div id="loginArea" style="text-align: center;">
+      Username: <input id="nameInput" />
+    </div>
+
+    <!-- Submit button for login -->
+    <div style="text-align: center;">
+      <button style="margin-top: 20px; background-color: steelblue; padding: 10px 20px; border: none; border-radius: 5px;" onclick="submitLogin()">
+        SUBMIT
+      </button>
+      <p id="loginMsg"></p>
+    </div>
+
+    <!-- Lobby area with user list and new game button -->
+    <div id="lobbyArea" style="display:none;">
+      <div id="userList"></div>
+      <button id="newGameBtn" onclick="promptNewGame()">NEW-GAME</button>
+    </div>
+
+    <!-- Show X/O choice when starting a game -->
+    <div id="newGamePrompt" style="display:none;">
+      Choose:
+      <button onclick="chooseSide('X')">X</button>
+      <button onclick="chooseSide('O')">O</button>
+    </div>
+
+    <!-- Game area with game status and board -->
     <div id="gameArea" style="display:none;">
       <div id="status"></div>
       <div id="board"></div>
     </div>
   </div>
 
-    <div id="howToPlayOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.7); z-index: 9999; text-align: center;">
+  <!-- Pop-up overlay for instructions -->
+  <div id="howToPlayOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7); z-index: 9999; text-align: center;">
+    
+    <!-- Inner box for overlay content -->
     <div style="position: relative; background: white; width: 80%; max-width: 500px; margin: 10% auto; padding: 20px; border-radius: 8px; text-align: left;">
+      <!-- Close [X] button -->
       <span onclick="closeHowToPlay()" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-weight: bold; font-size: 18px;">&times;</span>
       <h2>How to Play</h2>
       <p>1. Choose a screen name to get started. If someone else is already using it, try a different one!</p>
@@ -58,13 +82,15 @@
       <p>3. Take turns placing your Xs and Os. The first player to get 3 in a row wins!</p>
       <p>4. You can start a new game after each match.</p>
     </div>
-</div>
+  </div>
 
-
+  <!-- Import the socket.io library -->
   <script src="/socket.io/socket.io.js"></script>
+
+  <!-- Our game logic -->
   <script src="client.js"></script>
-  <script>
-    
-  </script>
+
+  <!-- Optional extra scripts can go here -->
+  <script></script>
 </body>
 </html>
